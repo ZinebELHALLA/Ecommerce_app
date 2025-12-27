@@ -4,9 +4,12 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface CartItem {
+  id: string; // Used for UI identification/removal if needed, or mapped from backend ID
   skuCode: string;
-  price: number;
+  unitPrice: number; // Frontend uses unitPrice
+  totalPrice: number;
   quantity: number;
+  productName: string; 
 }
 
 export interface CartResponse {

@@ -41,27 +41,33 @@ export class CartComponent implements OnInit {
     });
   }
 
-  updateQuantity(item: CartItem, change: number) {
-    const newQty = item.quantity + change;
-    if (newQty < 1) return;
+  updateQuantity(id: string | number, quantity: number) {
+     if (quantity < 1) return;
+     const item = this.cart?.cartItems.find(i => i.id === id); // id match
+     if (!item) return;
 
-    this.cartService.updateItem(item.skuCode, newQty).subscribe({
+    this.cartService.updateItem(item.skuCode, quantity).subscribe({
       next: (data) => {
         this.cart = data;
       },
       error: (err) => {
+        console.error('Update error', err);
         this.error = 'Failed to update quantity';
         setTimeout(() => this.error = '', 3000);
       }
     });
   }
 
-  removeItem(item: CartItem) {
+  removeItem(id: string | number) {
+    const item = this.cart?.cartItems.find(i => i.id === id);
+    if (!item) return;
+
     this.cartService.removeItem(item.skuCode).subscribe({
       next: (data) => {
         this.cart = data;
       },
       error: (err) => {
+        console.error('Remove error', err);
         this.error = 'Failed to remove item';
         setTimeout(() => this.error = '', 3000);
       }
@@ -98,5 +104,36 @@ export class CartComponent implements OnInit {
         setTimeout(() => this.checkoutError = '', 5000);
       }
     });
+  }
+
+  // Helpers for template access
+  get cartItems(): CartItem[] {
+      return this.cart ? this.cart.cartItems : [];
+  }
+
+  get totalPrice(): number {
+      return this.cart ? this.cart.totalPrice : 0;
+  }
+  
+  successMessage = '';
+
+  clearCart() {
+      if (!this.cart || this.cartItems.length === 0) return;
+      
+      this.cartService.clearCart().subscribe({
+          next: () => {
+             this.cart = { userId: this.cartService.getUserId(), cartItems: [], totalPrice: 0 };
+             this.successMessage = 'Cart cleared!';
+             setTimeout(() => this.successMessage = '', 3000);
+          },
+          error: (err) => {
+              console.error('Failed to clear cart', err);
+              this.error = 'Failed to clear cart';
+          }
+      });
+  }
+
+  placeOrder() {
+     this.checkout();
   }
 }

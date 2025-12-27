@@ -1,21 +1,46 @@
-<div class="container">
-  <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
-    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-      <span class="fs-4">E-Shop Microservices</span>
-    </a>
+<!-- Global Toast Container -->
+<app-toast></app-toast>
 
-    <ul class="nav nav-pills">
-      <li class="nav-item"><a routerLink="/products" class="nav-link" routerLinkActive="active">Products</a></li>
-      <li class="nav-item"><a routerLink="/cart" class="nav-link" routerLinkActive="active">Cart</a></li>
-      <li class="nav-item"><a routerLink="/manage-products" class="nav-link" routerLinkActive="active">Manage Products</a></li>
-    </ul>
-  </header>
+<div class="min-h-screen bg-background font-sans text-text">
+  <!-- Sticky Glass Navbar -->
+  <nav class="fixed top-0 w-full z-40 transition-all duration-300 bg-white/80 backdrop-blur-md shadow-sm border-b border-white/20">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <!-- Brand Logo -->
+      <a routerLink="/" class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hover:opacity-80 transition-opacity flex items-center gap-2 decoration-0">
+        <i class="bi bi-bag-heart-fill text-secondary"></i>ShopCute
+      </a>
 
-  <main>
+      <!-- Navigation Links -->
+      <ul class="flex items-center gap-6 m-0 p-0 list-none">
+        <li>
+          <a routerLink="/products" routerLinkActive="text-primary font-semibold" class="text-gray-600 hover:text-primary transition-colors flex items-center gap-2 decoration-0">
+            <i class="bi bi-grid"></i> Products
+          </a>
+        </li>
+        <li>
+          <a routerLink="/manage-products" routerLinkActive="text-primary font-semibold" class="text-gray-600 hover:text-primary transition-colors flex items-center gap-2 decoration-0">
+            <i class="bi bi-gear"></i> Manage
+          </a>
+        </li>
+        <li>
+          <a routerLink="/cart" routerLinkActive="text-primary font-semibold" class="relative text-gray-600 hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10 decoration-0">
+            <i class="bi bi-cart3 text-xl"></i>
+            <!-- Optional: Add badge here if cart count is available -->
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content Spacer for Sticky Header -->
+  <main class="container mx-auto px-6 pt-24 pb-12">
     <router-outlet></router-outlet>
   </main>
 
-  <footer class="py-3 my-4">
-    <p class="text-center text-muted">© 2025 E-Shop</p>
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-100 py-8 mt-auto">
+    <div class="container mx-auto text-center text-gray-400 text-sm">
+      <p>&copy; 2025 ShopCute. Made with <i class="bi bi-heart-fill text-secondary px-1"></i> and Angular using Microservices.</p>
+    </div>
   </footer>
 </div>

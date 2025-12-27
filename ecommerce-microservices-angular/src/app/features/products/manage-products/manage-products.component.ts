@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductService } from '../../../core/services/product.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-manage-products',
@@ -16,7 +17,8 @@ export class ManageProductsComponent {
 
   constructor(
     private fb: FormBuilder,
-    private productService: ProductService
+    private productService: ProductService,
+    private toastService: ToastService
   ) {
     this.productForm = this.fb.group({
       name: ['', Validators.required],
@@ -65,6 +67,7 @@ export class ManageProductsComponent {
 
     this.productService.createProduct(payload as any).subscribe({
       next: () => {
+        this.toastService.show('Product created successfully!', 'success');
         this.successMessage = 'Product created successfully!';
         this.errorMessage = '';
         this.loading = false;
@@ -73,6 +76,7 @@ export class ManageProductsComponent {
       },
       error: (err: any) => {
         console.error('Create product error', err);
+        this.toastService.show('Failed to create product.', 'error');
         this.errorMessage = 'Failed to create product. Please try again.';
         this.loading = false;
       }
@@ -100,10 +104,12 @@ export class ManageProductsComponent {
               this.newCategory = { name: '', description: '' };
               this.creatingCategory = false;
               this.successMessage = 'Category created and selected!';
+              this.toastService.show('Category created!', 'success');
               setTimeout(() => this.successMessage = '', 3000);
           },
           error: (err) => {
               console.error('Failed to create category', err);
+              this.toastService.show('Failed to create category.', 'error');
               this.errorMessage = 'Failed to create category.';
               this.creatingCategory = false;
           }
