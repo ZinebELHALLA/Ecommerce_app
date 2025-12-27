@@ -22,6 +22,12 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 
 Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
 
+## Project Scope
+This project is a simplified e-commerce frontend designed to demonstrate microservices interaction.
+- **Public Access**: No authentication or user accounts.
+- **Features**: Product listing, product details, cart management (in-memory/local storage or simple backend session if available).
+- **Architecture**: Angular frontend communicating solely with an API Gateway.
+
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.

@@ -1,6 +1,8 @@
 <div class="product-container">
   <h2>Products</h2>
   
+  <div *ngIf="cartMessage" class="alert alert-success fixed-top m-3">{{ cartMessage }}</div>
+  
   <div *ngIf="loading" class="loading">Loading products...</div>
   
   <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
@@ -9,8 +11,19 @@
     <div *ngFor="let product of products" class="product-card">
       <h3>{{ product.name }}</h3>
       <p class="description">{{ product.description }}</p>
-      <p class="price">{{ product.price | currency }}</p>
-      <button>Add to Cart</button>
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="price">{{ product.price | currency }}</span>
+        
+        <span *ngIf="product.checkingStock" class="badge bg-secondary">Checking stock...</span>
+        <span *ngIf="!product.checkingStock && product.inStock" class="badge bg-success">In Stock</span>
+        <span *ngIf="!product.checkingStock && !product.inStock" class="badge bg-danger">Out of Stock</span>
+      </div>
+      
+      <button class="btn btn-primary mt-2 w-100" 
+              [disabled]="!product.inStock || product.checkingStock"
+              (click)="addToCart(product)">
+        Add to Cart
+      </button>
     </div>
   </div>
   

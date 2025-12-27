@@ -1,4 +1,24 @@
 {
+  "/product-service": {
+    "target": "http://localhost:8088",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/inventory-service": {
+    "target": "http://localhost:8088",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/cart-service": {
+    "target": "http://localhost:8088",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/order-service": {
+    "target": "http://localhost:8088",
+    "secure": false,
+    "changeOrigin": true
+  },
   "/api": {
     "target": "http://localhost:8088",
     "secure": false,
