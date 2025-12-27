@@ -1,0 +1,51 @@
+<div class="container mt-4">
+  <h2>Your Cart</h2>
+
+  <div *ngIf="loading" class="alert alert-info">Loading cart...</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="checkoutMessage" class="alert alert-success">{{ checkoutMessage }}</div>
+  <div *ngIf="checkoutError" class="alert alert-danger">{{ checkoutError }}</div>
+
+  <div *ngIf="!loading && cart && cart.cartItems.length > 0">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Product SKU</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Subtotal</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of cart.cartItems">
+          <td>{{ item.skuCode }}</td>
+          <td>{{ item.price | currency }}</td>
+          <td class="d-flex align-items-center">
+            <button class="btn btn-sm btn-outline-secondary me-2" (click)="updateQuantity(item, -1)">-</button>
+            <span>{{ item.quantity }}</span>
+            <button class="btn btn-sm btn-outline-secondary ms-2" (click)="updateQuantity(item, 1)">+</button>
+          </td>
+          <td>{{ item.price * item.quantity | currency }}</td>
+          <td>
+            <button class="btn btn-sm btn-danger" (click)="removeItem(item)">Remove</button>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+          <tr>
+              <td colspan="3" class="text-end fw-bold">Total:</td>
+              <td colspan="2" class="fw-bold">{{ cart.totalPrice | currency }}</td>
+          </tr>
+      </tfoot>
+    </table>
+
+    <div class="d-flex justify-content-end mb-5">
+        <button class="btn btn-success btn-lg" (click)="checkout()">Checkout</button>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && (!cart || cart.cartItems.length === 0)" class="alert alert-secondary text-center">
+    Your cart is empty. <a routerLink="/products">Go shopping!</a>
+  </div>
+</div>

@@ -14,10 +14,14 @@ interface ProductWithStock extends Product {
 })
 export class ProductListComponent implements OnInit {
   products: ProductWithStock[] = [];
+  filteredProducts: ProductWithStock[] = [];
   loading = true;
   error = '';
   cartMessage = '';
-
+  
+  // Search & Filter
+  searchTerm = '';
+  
   constructor(
     private productService: ProductService,
     private cartService: CartService
@@ -31,6 +35,7 @@ export class ProductListComponent implements OnInit {
     this.productService.getProducts().subscribe({
       next: (data: Product[]) => {
         this.products = data.map(p => ({ ...p, checkingStock: true }));
+        this.filteredProducts = [...this.products];
         this.loading = false;
         this.checkInventory();
       },
@@ -41,11 +46,23 @@ export class ProductListComponent implements OnInit {
       }
     });
   }
+  
+  filterProducts() {
+    if (!this.searchTerm) {
+      this.filteredProducts = [...this.products];
+    } else {
+      const lower = this.searchTerm.toLowerCase();
+      this.filteredProducts = this.products.filter(p => 
+        p.name.toLowerCase().includes(lower) || 
+        p.description.toLowerCase().includes(lower)
+      );
+    }
+  }
 
   checkInventory() {
     this.products.forEach(product => {
-      // Assuming skuCode is available or using ID as skuCode if missing
-      const sku = product.skuCode || product.id.toString(); 
+      // Use sku from product DTO, fallback to ID if missing (shouldn't happen with correct DTO)
+      const sku = product.sku || product.id; 
       if (sku) {
         this.productService.checkStock(sku).subscribe({
           next: (stock) => {
@@ -53,7 +70,6 @@ export class ProductListComponent implements OnInit {
             product.checkingStock = false;
           },
           error: () => {
-             // Fallback if inventory service fails or product not found in inventory
              product.inStock = false; 
              product.checkingStock = false;
           }
@@ -68,8 +84,7 @@ export class ProductListComponent implements OnInit {
   addToCart(product: ProductWithStock) {
     if (!product.inStock) return;
 
-    // Use skuCode or ID 
-    const sku = product.skuCode || product.id.toString();
+    const sku = product.sku || product.id;
 
     this.cartService.addToCart({
       skuCode: sku,

@@ -1,6 +1,10 @@
 <div class="product-container">
   <h2>Products</h2>
   
+  <div class="mb-3">
+    <input type="text" class="form-control" placeholder="Search products..." [(ngModel)]="searchTerm" (input)="filterProducts()">
+  </div>
+
   <div *ngIf="cartMessage" class="alert alert-success fixed-top m-3">{{ cartMessage }}</div>
   
   <div *ngIf="loading" class="loading">Loading products...</div>
@@ -8,7 +12,7 @@
   <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 
   <div *ngIf="!loading && !error" class="product-grid">
-    <div *ngFor="let product of products" class="product-card">
+    <div *ngFor="let product of filteredProducts" class="product-card">
       <h3>{{ product.name }}</h3>
       <p class="description">{{ product.description }}</p>
       <div class="d-flex justify-content-between align-items-center">

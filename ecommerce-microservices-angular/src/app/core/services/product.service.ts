@@ -8,8 +8,10 @@ export interface Product {
     name: string;
     description: string;
     price: number;
-    quantity?: number; // From inventory
-    skuCode?: string; // Needed for inventory check
+    sku: string; // Matches backend DTO
+    imageUrl?: string;
+    categoryId?: string;
+    stock?: number; // Backend DTO has this, but we also check inventory-service
 }
 
 @Injectable({
