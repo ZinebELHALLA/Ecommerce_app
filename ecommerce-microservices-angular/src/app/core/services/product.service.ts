@@ -8,10 +8,11 @@ export interface Product {
     name: string;
     description: string;
     price: number;
-    sku: string; // Matches backend DTO
+    sku: string;
     imageUrl?: string;
     categoryId?: string;
-    stock?: number; // Backend DTO has this
+    stock?: number | null; // Can be null from backend
+    active?: boolean; // Used to determine availability
     inStock?: boolean; // From inventory check
     checkingStock?: boolean; // UI state
 }

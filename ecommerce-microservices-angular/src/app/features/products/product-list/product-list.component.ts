@@ -103,12 +103,13 @@ export class ProductListComponent implements OnInit {
             product.checkingStock = false;
           },
           error: () => {
-             // If inventory check fails, fallback to local stock
-             // Handle null stock by treating as out of stock
-             if (product.stock != null && product.stock > 0) {
-                 product.inStock = true;
+             // Fallback logic when inventory service fails:
+             // If stock is null, treat as available if product is active
+             // Otherwise, only in stock if stock > 0
+             if (product.stock === null || product.stock === undefined) {
+                 product.inStock = product.active !== false; // Default to true unless explicitly false
              } else {
-                 product.inStock = false;
+                 product.inStock = product.stock > 0;
              }
              product.checkingStock = false;
           }

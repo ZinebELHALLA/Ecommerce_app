@@ -72,7 +72,11 @@
                             'bg-gray-500/90 text-white': product.checkingStock, 
                             'bg-red-500/90 text-white': !product.inStock && !product.checkingStock
                         }">
-                      {{ product.checkingStock ? 'Checking...' : (product.inStock ? 'In Stock' + (product.stock != null && product.stock > 0 ? ' (' + product.stock + ')' : '') : 'Out of Stock') }}
+                      <ng-container *ngIf="product.checkingStock">Checking...</ng-container>
+                      <ng-container *ngIf="!product.checkingStock && product.inStock">
+                        In Stock<span *ngIf="product.stock != null && product.stock > 0"> ({{ product.stock }})</span>
+                      </ng-container>
+                      <ng-container *ngIf="!product.checkingStock && !product.inStock">Out of Stock</ng-container>
                   </span>
               </div>
           </div>
