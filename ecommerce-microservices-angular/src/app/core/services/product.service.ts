@@ -11,7 +11,15 @@ export interface Product {
     sku: string; // Matches backend DTO
     imageUrl?: string;
     categoryId?: string;
-    stock?: number; // Backend DTO has this, but we also check inventory-service
+    stock?: number; // Backend DTO has this
+    inStock?: boolean; // From inventory check
+    checkingStock?: boolean; // UI state
+}
+
+export interface Category {
+    id: string;
+    name: string;
+    description?: string;
 }
 
 @Injectable({
@@ -28,11 +36,22 @@ export class ProductService {
   }
 
   getProduct(id: string): Observable<Product> {
-    // Note: Backend might have a bug with /id path, trying standard approach
     return this.http.get<Product>(`${this.productServiceUrl}/${id}`);
   }
 
   checkStock(skuCode: string): Observable<{ skuCode: string, inStock: boolean }> {
       return this.http.get<{ skuCode: string, inStock: boolean }>(`${this.inventoryServiceUrl}/${skuCode}`);
+  }
+
+  createProduct(product: any): Observable<Product> {
+    return this.http.post<Product>(this.productServiceUrl, product);
+  }
+
+  getCategories(): Observable<Category[]> {
+      return this.http.get<Category[]>(`${environment.apiUrl}/product-service/api/categories`);
+  }
+
+  createCategory(category: { name: string, description: string }): Observable<Category> {
+      return this.http.post<Category>(`${environment.apiUrl}/product-service/api/categories`, category);
   }
 }

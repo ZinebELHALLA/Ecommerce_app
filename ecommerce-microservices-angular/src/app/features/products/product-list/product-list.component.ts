@@ -21,7 +21,10 @@ export class ProductListComponent implements OnInit {
   
   // Search & Filter
   searchTerm = '';
-  
+  selectedCategory = '';
+  priceRange: number | null = null;
+  categories: string[] = [];
+
   constructor(
     private productService: ProductService,
     private cartService: CartService
@@ -35,6 +38,7 @@ export class ProductListComponent implements OnInit {
     this.productService.getProducts().subscribe({
       next: (data: Product[]) => {
         this.products = data.map(p => ({ ...p, checkingStock: true }));
+        this.extractCategories();
         this.filteredProducts = [...this.products];
         this.loading = false;
         this.checkInventory();
@@ -47,16 +51,34 @@ export class ProductListComponent implements OnInit {
     });
   }
   
+  extractCategories() {
+    const cats = new Set(this.products.map(p => p.categoryId).filter(c => !!c));
+    this.categories = Array.from(cats) as string[];
+  }
+
   filterProducts() {
-    if (!this.searchTerm) {
-      this.filteredProducts = [...this.products];
-    } else {
+    let temp = this.products;
+
+    // Search
+    if (this.searchTerm) {
       const lower = this.searchTerm.toLowerCase();
-      this.filteredProducts = this.products.filter(p => 
+      temp = temp.filter(p => 
         p.name.toLowerCase().includes(lower) || 
         p.description.toLowerCase().includes(lower)
       );
     }
+
+    // Category
+    if (this.selectedCategory) {
+        temp = temp.filter(p => p.categoryId === this.selectedCategory);
+    }
+
+    // Price Max
+    if (this.priceRange) {
+        temp = temp.filter(p => p.price <= this.priceRange!);
+    }
+
+    this.filteredProducts = temp;
   }
 
   checkInventory() {

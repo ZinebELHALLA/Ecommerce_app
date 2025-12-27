@@ -1,0 +1,7 @@
+/* Custom styles for manage products form */
+.card {
+    border: none;
+}
+.card-header {
+    border-radius: 4px 4px 0 0;
+}
