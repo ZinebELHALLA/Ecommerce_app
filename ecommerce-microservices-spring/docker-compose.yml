@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: clientdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+  postgres-inventory:
+    image: postgres:15
+    container_name: postgres_inventory_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: inventorydb
+    ports:
+      - "5434:5432"  # IMPORTANT: port externe 5434
+    volumes:
+      - inventory_data:/var/lib/postgresql/data
+    restart: always
+  postgres-order:
+    image: postgres:15
+    container_name: postgres_order_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: orderdb
+    ports:
+      - "5435:5432"  # IMPORTANT: port externe 5435
+    volumes:
+      - order_data:/var/lib/postgresql/data
+    restart: always
+  redis-cart:
+    image: redis:7
+    container_name: redis_cart
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+volumes:
+  postgres_data:
+  inventory_data:
+  order_data:
+  redis_data:
+
+
