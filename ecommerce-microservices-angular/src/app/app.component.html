@@ -24,9 +24,9 @@
               <i class="bi bi-gear"></i> Manage
             </a>
           </li>
-          <li>
+          <li *ngIf="!authService.isManager()">
             <a routerLink="/cart" routerLinkActive="text-primary font-semibold" class="relative text-gray-600 hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10 decoration-0">
-              <i class="bi bi-cart3 text-xl"></i>
+              <i class="bi bi-cart3 text-xl"></i> Shopping
             </a>
           </li>
           <li>

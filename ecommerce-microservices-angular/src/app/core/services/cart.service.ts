@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { AuthService } from './auth.service';
 
 export interface CartItem {
   id: string; // Frontend ID - always set from skuCode
@@ -33,17 +34,24 @@ interface BackendCartResponse {
 })
 export class CartService {
   private cartServiceUrl = `${environment.apiUrl}/cart-service/api/carts`;
-  private userId: number;
+  private userId: number = 0;
 
-  constructor(private http: HttpClient) {
-    // Generate a random user ID for anonymous session if not exists
-    const storedId = localStorage.getItem('anonymous_user_id');
-    if (storedId) {
-      this.userId = parseInt(storedId, 10);
-    } else {
-      this.userId = Math.floor(Math.random() * 1000000);
-      localStorage.setItem('anonymous_user_id', this.userId.toString());
-    }
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {
+    // Get user ID from authenticated user instead of random ID
+    this.updateUserId();
+    
+    // Listen for auth changes
+    this.authService.currentUser$.subscribe(user => {
+      this.updateUserId();
+    });
+  }
+
+  private updateUserId(): void {
+    const user = this.authService.getCurrentUser();
+    this.userId = user?.id || 0;
   }
 
   getCart(): Observable<CartResponse> {
