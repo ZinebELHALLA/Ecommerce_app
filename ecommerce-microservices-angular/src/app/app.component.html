@@ -12,28 +12,52 @@
 
       <!-- Navigation Links -->
       <ul class="flex items-center gap-6 m-0 p-0 list-none">
-        <li>
-          <a routerLink="/products" routerLinkActive="text-primary font-semibold" class="text-gray-600 hover:text-primary transition-colors flex items-center gap-2 decoration-0">
-            <i class="bi bi-grid"></i> Products
-          </a>
-        </li>
-        <li>
-          <a routerLink="/manage-products" routerLinkActive="text-primary font-semibold" class="text-gray-600 hover:text-primary transition-colors flex items-center gap-2 decoration-0">
-            <i class="bi bi-gear"></i> Manage
-          </a>
-        </li>
+        <!-- Authenticated Menu Items -->
+        <ng-container *ngIf="authService.isAuthenticated()">
+          <li>
+            <a routerLink="/products" routerLinkActive="text-primary font-semibold" class="text-gray-600 hover:text-primary transition-colors flex items-center gap-2 decoration-0">
+              <i class="bi bi-grid"></i> Products
+            </a>
+          </li>
+          <li *ngIf="authService.isManager()">
+            <a routerLink="/manage-products" routerLinkActive="text-primary font-semibold" class="text-gray-600 hover:text-primary transition-colors flex items-center gap-2 decoration-0">
+              <i class="bi bi-gear"></i> Manage
+            </a>
+          </li>
+          <li>
+            <a routerLink="/cart" routerLinkActive="text-primary font-semibold" class="relative text-gray-600 hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10 decoration-0">
+              <i class="bi bi-cart3 text-xl"></i>
+            </a>
+          </li>
+          <li>
+            <div class="flex items-center gap-4">
+              <span class="text-sm text-gray-600">
+                <i class="bi bi-person-circle mr-1"></i>
+                {{authService.getCurrentUser()?.username}}
+                <span class="ml-1 px-2 py-1 bg-secondary/10 text-secondary text-xs rounded-full">
+                  {{authService.getUserRole()}}
+                </span>
+              </span>
+              <button (click)="logout()" class="text-gray-600 hover:text-red-500 transition-colors flex items-center gap-2 decoration-0">
+                <i class="bi bi-box-arrow-right"></i> Logout
+              </button>
+            </div>
+          </li>
+        </ng-container>
 
-                <li>
-          <a routerLink="/cart" routerLinkActive="text-primary font-semibold" class="text-gray-600 hover:text-primary transition-colors flex items-center gap-2 decoration-0">
-            <i class="bi bi-gear"></i> Shooping card
-          </a>
-        </li>
-        <li>
-          <a routerLink="/cart" routerLinkActive="text-primary font-semibold" class="relative text-gray-600 hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10 decoration-0">
-            <i class="bi bi-cart3 text-xl"></i>
-            <!-- Optional: Add badge here if cart count is available -->
-          </a>
-        </li>
+        <!-- Unauthenticated Menu Items -->
+        <ng-container *ngIf="!authService.isAuthenticated()">
+          <li>
+            <a routerLink="/login" routerLinkActive="text-primary font-semibold" class="text-gray-600 hover:text-primary transition-colors flex items-center gap-2 decoration-0">
+              <i class="bi bi-box-arrow-in-right"></i> Login
+            </a>
+          </li>
+          <li>
+            <a routerLink="/register" class="btn-primary flex items-center gap-2 decoration-0">
+              <i class="bi bi-person-plus"></i> Register
+            </a>
+          </li>
+        </ng-container>
       </ul>
     </div>
   </nav>

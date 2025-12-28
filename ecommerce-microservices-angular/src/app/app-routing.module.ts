@@ -4,14 +4,37 @@ import { ProductListComponent } from './features/products/product-list/product-l
 import { CartComponent } from './features/cart/cart.component';
 import { ManageProductsComponent } from './features/products/manage-products/manage-products.component';
 import { ProductDetailComponent } from './features/products/product-detail/product-detail.component';
+import { LoginComponent } from './features/auth/login/login.component';
+import { RegisterComponent } from './features/auth/register/register.component';
+import { AuthGuard } from './core/guards/auth.guard';
+import { RoleGuard } from './core/guards/role.guard';
 
 const routes: Routes = [
-  { path: 'products', component: ProductListComponent },
-  { path: 'products/:id', component: ProductDetailComponent },
-  { path: 'cart', component: CartComponent },
-  { path: 'manage-products', component: ManageProductsComponent },
-  { path: '', redirectTo: '/products', pathMatch: 'full' },
-  { path: '**', redirectTo: '/products' }
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  { 
+    path: 'products', 
+    component: ProductListComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'products/:id', 
+    component: ProductDetailComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'cart', 
+    component: CartComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'manage-products', 
+    component: ManageProductsComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: 'MANAGER' }
+  },
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '**', redirectTo: '/login' }
 ];
 
 @NgModule({

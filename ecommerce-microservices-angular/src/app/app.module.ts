@@ -10,6 +10,8 @@ import { CartComponent } from './features/cart/cart.component';
 import { ManageProductsComponent } from './features/products/manage-products/manage-products.component';
 import { ProductDetailComponent } from './features/products/product-detail/product-detail.component';
 import { ToastComponent } from './shared/components/toast/toast.component';
+import { LoginComponent } from './features/auth/login/login.component';
+import { RegisterComponent } from './features/auth/register/register.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +20,9 @@ import { ToastComponent } from './shared/components/toast/toast.component';
     CartComponent,
     ManageProductsComponent,
     ProductDetailComponent,
-    ToastComponent
+    ToastComponent,
+    LoginComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,
