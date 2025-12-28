@@ -57,7 +57,8 @@
     <!-- Grid -->
     <div *ngIf="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       <div *ngFor="let product of filteredProducts" class="group">
-        <div class="card-premium h-full flex flex-col relative w-full">
+        <a [routerLink]="['/products', product.id]" class="block">
+          <div class="card-premium h-full flex flex-col relative w-full cursor-pointer transform hover:scale-[1.02] transition-transform duration-300">
           <!-- Image -->
           <div class="relative overflow-hidden h-48 bg-gray-100">
               <img [src]="product.imageUrl || 'https://placehold.co/400x300?text=No+Image'" 
@@ -100,6 +101,7 @@
             </div>
           </div>
         </div>
+        </a>
       </div>
     </div>
     

@@ -37,7 +37,9 @@ export class ProductService {
   }
 
   getProduct(id: string): Observable<Product> {
-    return this.http.get<Product>(`${this.productServiceUrl}/${id}`);
+    // Backend expects: @GetMapping("/id") with @PathVariable
+    // URL format: /api/products/id/{id} (path variable, NOT query param)
+    return this.http.get<Product>(`${this.productServiceUrl}/id/${id}`);
   }
 
   checkStock(skuCode: string): Observable<{ skuCode: string, inStock: boolean }> {

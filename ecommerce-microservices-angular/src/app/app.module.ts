@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { ProductListComponent } from './features/products/product-list/product-list.component';
 import { CartComponent } from './features/cart/cart.component';
 import { ManageProductsComponent } from './features/products/manage-products/manage-products.component';
+import { ProductDetailComponent } from './features/products/product-detail/product-detail.component';
 import { ToastComponent } from './shared/components/toast/toast.component';
 
 @NgModule({
@@ -16,6 +17,7 @@ import { ToastComponent } from './shared/components/toast/toast.component';
     ProductListComponent,
     CartComponent,
     ManageProductsComponent,
+    ProductDetailComponent,
     ToastComponent
   ],
   imports: [
