@@ -27,13 +27,19 @@ export class CartComponent implements OnInit {
 
   loadCart() {
     this.loading = true;
+    console.log('Loading cart for user:', this.cartService.getUserId());
+    console.log('Cart API URL:', `/cart-service/api/carts/${this.cartService.getUserId()}`);
+    
     this.cartService.getCart().subscribe({
       next: (data) => {
+        console.log('Cart data received:', data);
         this.cart = data;
         this.loading = false;
       },
       error: (err) => {
         console.error('Error loading cart', err);
+        console.log('Error status:', err.status);
+        console.log('Error message:', err.message);
         // If 404, it might mean empty cart or user not found, treat as empty
         this.cart = { userId: this.cartService.getUserId(), cartItems: [], totalPrice: 0 };
         this.loading = false;
