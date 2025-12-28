@@ -37,27 +37,26 @@ export class LoginComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/products';
   }
 
+
   onSubmit(): void {
-    if (this.loginForm.invalid) {
-      return;
-    }
-
-    this.loading = true;
-    const credentials = this.loginForm.value;
-
-    this.authService.login(credentials).subscribe({
-      next: (response) => {
-        this.authService.saveToken(response.token);
-        this.toastService.show(`Welcome back, ${response.user.username}!`, 'success');
-        this.router.navigate([this.returnUrl]);
-      },
-      error: (error) => {
-        console.error('Login error:', error);
-        this.toastService.show('Login failed. Please try again.', 'error');
-        this.loading = false;
-      }
-    });
+  if (this.loginForm.invalid) {
+    return;
   }
+  this.loading = true;
+  const credentials = this.loginForm.value;
+  this.authService.login(credentials).subscribe({
+    next: (response) => {
+      // Response is LoginResponse, not { token, user }
+      this.toastService.show(`Welcome back, ${response.username}!`, 'success');
+      this.router.navigate([this.returnUrl]);
+    },
+    error: (error) => {
+      console.error('Login error:', error);
+      this.toastService.show('Login failed. Please check your credentials.', 'error');
+      this.loading = false;
+    }
+  });
+}
 
   get f() {
     return this.loginForm.controls;

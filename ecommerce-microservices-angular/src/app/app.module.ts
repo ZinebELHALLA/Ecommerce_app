@@ -13,6 +13,9 @@ import { ToastComponent } from './shared/components/toast/toast.component';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -31,7 +34,10 @@ import { RegisterComponent } from './features/auth/register/register.component';
     ReactiveFormsModule,
     FormsModule
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+providers: [
+  { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+],
+bootstrap: [AppComponent]
+  
 })
 export class AppModule { }

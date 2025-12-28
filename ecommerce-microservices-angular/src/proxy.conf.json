@@ -1,5 +1,11 @@
 {
-  "/product-service/api": {
+  "/client-service/**": {
+    "target": "http://localhost:8088",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/product-service/**": {
     "target": "http://localhost:8081",
     "secure": false,
     "changeOrigin": true,
@@ -8,31 +14,28 @@
     },
     "logLevel": "debug"
   },
-  "/inventory-service/api": {
+  "/inventory-service/**": {
     "target": "http://localhost:8083",
     "secure": false,
     "changeOrigin": true,
     "pathRewrite": {
       "^/inventory-service": ""
-    },
-    "logLevel": "debug"
+    }
   },
-  "/cart-service/api": {
+  "/cart-service/**": {
     "target": "http://localhost:8087",
     "secure": false,
     "changeOrigin": true,
     "pathRewrite": {
       "^/cart-service": ""
-    },
-    "logLevel": "debug"
+    }
   },
-  "/order-service/api": {
+  "/order-service/**": {
     "target": "http://localhost:8085",
     "secure": false,
     "changeOrigin": true,
     "pathRewrite": {
       "^/order-service": ""
-    },
-    "logLevel": "debug"
+    }
   }
 }

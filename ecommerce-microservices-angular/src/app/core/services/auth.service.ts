@@ -1,27 +1,31 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
-
+import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 export interface User {
   id: number;
   username: string;
   email: string;
   role: 'MANAGER' | 'USER';
 }
-
 export interface LoginRequest {
   username: string;
   password: string;
 }
-
+export interface LoginResponse {
+  token: string;
+  username: string;
+  role: string;
+  userId: number;
+}
 export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
   role: 'MANAGER' | 'USER';
 }
-
 @Injectable({
   providedIn: 'root'
 })
@@ -29,11 +33,12 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
   
-  constructor(private router: Router) {
-    // Check if user is already logged in
+  constructor(
+    private router: Router,
+    private http: HttpClient
+  ) {
     this.loadUserFromStorage();
   }
-
   private loadUserFromStorage(): void {
     const token = this.getToken();
     if (token) {
@@ -41,85 +46,64 @@ export class AuthService {
       this.currentUserSubject.next(user);
     }
   }
-
-  login(credentials: LoginRequest): Observable<{ token: string; user: User }> {
-    // Mock login - in real app, this would call backend
-    // For demo: username and password can be anything
-    
-    // Determine role based on username (mock logic)
-    const role: 'MANAGER' | 'USER' = credentials.username.toLowerCase().includes('admin') || 
-                                       credentials.username.toLowerCase().includes('manager') 
-                                       ? 'MANAGER' : 'USER';
-    
-    const user: User = {
-      id: Math.floor(Math.random() * 1000000),
-      username: credentials.username,
-      email: `${credentials.username}@example.com`,
-      role: role
-    };
-
-    // Create mock JWT token
-    const token = this.createMockToken(user);
-    
-    // Simulate API delay
-    return of({ token, user }).pipe(delay(500));
+  login(credentials: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(
+      `${environment.apiUrl}/client-service/api/auth/login`,
+      { username: credentials.username, password: credentials.password }
+    ).pipe(
+      tap(response => {
+        this.saveToken(response.token);
+        const user: User = {
+          id: response.userId,
+          username: response.username,
+          email: response.username,
+          role: response.role as 'MANAGER' | 'USER'
+        };
+        this.currentUserSubject.next(user);
+      })
+    );
   }
-
   register(data: RegisterRequest): Observable<{ message: string }> {
-    // Mock registration - in real app, would call backend
-    return of({ message: 'Registration successful! Please login.' }).pipe(delay(500));
+    return this.http.post<{ message: string }>(
+      `${environment.apiUrl}/client-service/api/auth/register`,
+      {
+        username: data.username,
+        email: data.email || `${data.username}@example.com`,
+        password: data.password,
+        firstName: data.username,
+        lastName: '',
+        phone: '0000000000'
+      }
+    );
   }
-
   logout(): void {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('current_user');
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
   }
-
   saveToken(token: string): void {
     localStorage.setItem('auth_token', token);
     const user = this.decodeToken(token);
     localStorage.setItem('current_user', JSON.stringify(user));
     this.currentUserSubject.next(user);
   }
-
   getToken(): string | null {
     return localStorage.getItem('auth_token');
   }
-
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
-
   isAuthenticated(): boolean {
     return this.getToken() !== null;
   }
-
   isManager(): boolean {
     const user = this.getCurrentUser();
     return user?.role === 'MANAGER';
   }
-
   getUserRole(): 'MANAGER' | 'USER' | null {
     return this.getCurrentUser()?.role || null;
   }
-
-  private createMockToken(user: User): string {
-    // Create a mock JWT-like token (NOT secure, just for demo)
-    const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-    const payload = btoa(JSON.stringify({
-      sub: user.id.toString(),
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      iat: Date.now(),
-      exp: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
-    }));
-    const signature = btoa('mock-signature');
-    return `${header}.${payload}.${signature}`;
-  }
-
   private decodeToken(token: string): User {
     try {
       const parts = token.split('.');
@@ -129,7 +113,7 @@ export class AuthService {
       return {
         id: parseInt(payload.sub),
         username: payload.username,
-        email: payload.email,
+        email: payload.username,
         role: payload.role
       };
     } catch (error) {
