@@ -1,0 +1,468 @@
+{
+	"info": {
+		"name": "E-Commerce Microservices - Synchronous Communication Tests",
+		"description": "Comprehensive test suite for e-commerce microservices with synchronous communication using WebClient",
+		"version": "1.0.0"
+	},
+	"item": [
+		{
+			"name": "1. Setup - Create Test Data",
+			"item": [
+				{
+					"name": "Create Client",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"phone\": \"+1234567890\",\n    \"authUserId\": \"auth123\",\n    \"password\": \"password123\",\n    \"role\": \"USER\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/clients",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["api", "clients"]
+						}
+					}
+				},
+				{
+					"name": "Create Product 1",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Laptop\",\n    \"description\": \"High-performance laptop\",\n    \"price\": 999.99,\n    \"sku\": \"LAPTOP001\",\n    \"imageUrl\": \"https://example.com/laptop.jpg\",\n    \"categoryId\": \"cat1\",\n    \"active\": true\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8082/api/products",
+							"host": ["localhost"],
+							"port": "8082",
+							"path": ["api", "products"]
+						}
+					}
+				},
+				{
+					"name": "Create Product 2",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Mouse\",\n    \"description\": \"Wireless mouse\",\n    \"price\": 29.99,\n    \"sku\": \"MOUSE001\",\n    \"imageUrl\": \"https://example.com/mouse.jpg\",\n    \"categoryId\": \"cat1\",\n    \"active\": true\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8082/api/products",
+							"host": ["localhost"],
+							"port": "8082",
+							"path": ["api", "products"]
+						}
+					}
+				},
+				{
+					"name": "Add Inventory - Laptop",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"skuCode\": \"LAPTOP001\",\n    \"quantity\": 10\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/inventory",
+							"host": ["localhost"],
+							"port": "8083",
+							"path": ["api", "inventory"]
+						}
+					}
+				},
+				{
+					"name": "Add Inventory - Mouse (Low Stock)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"skuCode\": \"MOUSE001\",\n    \"quantity\": 2\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/inventory",
+							"host": ["localhost"],
+							"port": "8083",
+							"path": ["api", "inventory"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Cart Operations - Success Cases",
+			"item": [
+				{
+					"name": "Add Laptop to Cart (Success)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"skuCode\": \"LAPTOP001\",\n    \"quantity\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8084/api/carts/1/items/validated",
+							"host": ["localhost"],
+							"port": "8084",
+							"path": ["api", "carts", "1", "items", "validated"]
+						}
+					},
+					"description": "Should validate product exists and stock is available, then add to cart"
+				},
+				{
+					"name": "Add Mouse to Cart (Success)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"skuCode\": \"MOUSE001\",\n    \"quantity\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8084/api/carts/1/items/validated",
+							"host": ["localhost"],
+							"port": "8084",
+							"path": ["api", "carts", "1", "items", "validated"]
+						}
+					}
+				},
+				{
+					"name": "Get Validated Cart",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:8084/api/carts/1/validate",
+							"host": ["localhost"],
+							"port": "8084",
+							"path": ["api", "carts", "1", "validate"]
+						}
+					},
+					"description": "Should return cart with all items validated and total amount calculated"
+				}
+			]
+		},
+		{
+			"name": "3. Cart Operations - Failure Cases",
+			"item": [
+				{
+					"name": "Add Non-Existent Product (Failure)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"skuCode\": \"NONEXISTENT001\",\n    \"quantity\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8084/api/carts/1/items/validated",
+							"host": ["localhost"],
+							"port": "8084",
+							"path": ["api", "carts", "1", "items", "validated"]
+						}
+					},
+					"description": "Should return 400 Bad Request with Product Validation Failed error"
+				},
+				{
+					"name": "Add Out of Stock Product (Failure)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"skuCode\": \"MOUSE001\",\n    \"quantity\": 10\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8084/api/carts/1/items/validated",
+							"host": ["localhost"],
+							"port": "8084",
+							"path": ["api", "carts", "1", "items", "validated"]
+						}
+					},
+					"description": "Should return 409 Conflict with Stock Validation Failed error (only 2 in stock)"
+				}
+			]
+		},
+		{
+			"name": "4. Checkout - Success Case",
+			"item": [
+				{
+					"name": "Successful Checkout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 1,\n    \"deliveryAddress\": \"123 Main St, City, Country\",\n    \"paymentMethod\": \"CREDIT_CARD\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8085/api/orders/checkout",
+							"host": ["localhost"],
+							"port": "8085",
+							"path": ["api", "orders", "checkout"]
+						}
+					},
+					"description": "Should:\n1. Validate client exists\n2. Get validated cart\n3. Final inventory check\n4. Create order\n5. Clear cart\n6. Return 201 Created with order details"
+				},
+				{
+					"name": "Verify Cart Cleared",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:8084/api/carts/1",
+							"host": ["localhost"],
+							"port": "8084",
+							"path": ["api", "carts", "1"]
+						}
+					},
+					"description": "Should return empty cart after successful checkout"
+				}
+			]
+		},
+		{
+			"name": "5. Checkout - Failure Cases",
+			"item": [
+				{
+					"name": "Checkout with Invalid Client",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 999,\n    \"deliveryAddress\": \"123 Main St, City, Country\",\n    \"paymentMethod\": \"CREDIT_CARD\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8085/api/orders/checkout",
+							"host": ["localhost"],
+							"port": "8085",
+							"path": ["api", "orders", "checkout"]
+						}
+					},
+					"description": "Should return 400 Bad Request with Client Validation Failed error"
+				},
+				{
+					"name": "Checkout with Empty Cart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 1,\n    \"deliveryAddress\": \"123 Main St, City, Country\",\n    \"paymentMethod\": \"CREDIT_CARD\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8085/api/orders/checkout",
+							"host": ["localhost"],
+							"port": "8085",
+							"path": ["api", "orders", "checkout"]
+						}
+					},
+					"description": "Should return 400 Bad Request with Cart Empty error"
+				},
+				{
+					"name": "Setup for Stock Failure Test",
+					"item": [
+						{
+							"name": "Add Product to Cart",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"skuCode\": \"MOUSE001\",\n    \"quantity\": 2\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8084/api/carts/2/items/validated",
+									"host": ["localhost"],
+									"port": "8084",
+									"path": ["api", "carts", "2", "items", "validated"]
+								}
+							}
+						},
+						{
+							"name": "Reduce Stock to Create Conflict",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"skuCode\": \"MOUSE001\",\n    \"quantity\": 1\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8083/api/inventory",
+									"host": ["localhost"],
+									"port": "8083",
+									"path": ["api", "inventory"]
+								}
+							}
+						},
+						{
+							"name": "Checkout with Stock Conflict",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"userId\": 2,\n    \"deliveryAddress\": \"123 Main St, City, Country\",\n    \"paymentMethod\": \"CREDIT_CARD\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8085/api/orders/checkout",
+									"host": ["localhost"],
+									"port": "8085",
+									"path": ["api", "orders", "checkout"]
+								}
+							},
+							"description": "Should return 409 Conflict with Checkout Validation Failed error due to insufficient stock"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "6. Validation Endpoints Testing",
+			"item": [
+				{
+					"name": "Validate Products (Batch)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:8082/api/products/validate?skuCodes=LAPTOP001,MOUSE001,NONEXISTENT001",
+							"host": ["localhost"],
+							"port": "8082",
+							"path": ["api", "products", "validate"],
+							"query": [
+								{
+									"key": "skuCodes",
+									"value": "LAPTOP001,MOUSE001,NONEXISTENT001"
+								}
+							]
+						}
+					},
+					"description": "Should return validation status for each product"
+				},
+				{
+					"name": "Check Stock (Batch)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"skuCode\": \"LAPTOP001\",\n        \"requiredQuantity\": 5\n    },\n    {\n        \"skuCode\": \"MOUSE001\",\n        \"requiredQuantity\": 1\n    },\n    {\n        \"skuCode\": \"NONEXISTENT001\",\n        \"requiredQuantity\": 1\n    }\n]"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/inventory/check-batch",
+							"host": ["localhost"],
+							"port": "8083",
+							"path": ["api", "inventory", "check-batch"]
+						}
+					},
+					"description": "Should return stock availability for each item"
+				},
+				{
+					"name": "Validate Client",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:8081/api/clients/validate/1",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["api", "clients", "validate", "1"]
+						}
+					},
+					"description": "Should return client validation information"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "localhost"
+		}
+	]
+}

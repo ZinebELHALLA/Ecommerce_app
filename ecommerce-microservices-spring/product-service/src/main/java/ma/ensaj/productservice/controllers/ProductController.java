@@ -3,6 +3,7 @@ package ma.ensaj.productservice.controllers;
 import lombok.RequiredArgsConstructor;
 import ma.ensaj.productservice.dto.ProductRequestDTO;
 import ma.ensaj.productservice.dto.ProductResponseDTO;
+import ma.ensaj.productservice.dto.ProductValidationResponse;
 import ma.ensaj.productservice.entities.Product;
 import ma.ensaj.productservice.services.ProductService;
 import org.springframework.http.HttpStatus;
@@ -47,6 +48,21 @@ public class ProductController {
     @GetMapping("/health")
     public ResponseEntity<Void> checkHealth(){
         return ResponseEntity.noContent().build();
+    }
+    
+    // New endpoints for inter-service communication
+    @GetMapping("/validate")
+    public ResponseEntity<List<ProductValidationResponse>> validateProducts(
+            @RequestParam("skuCodes") List<String> skuCodes) {
+        List<ProductValidationResponse> responses = productService.validateProducts(skuCodes);
+        return ResponseEntity.ok(responses);
+    }
+    
+    @GetMapping("/validate/{skuCode}")
+    public ResponseEntity<ProductValidationResponse> validateProduct(
+            @PathVariable String skuCode) {
+        ProductValidationResponse response = productService.validateProductBySku(skuCode);
+        return ResponseEntity.ok(response);
     }
 
 

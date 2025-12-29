@@ -66,7 +66,19 @@ public class CartMapper {
         return new CartItem(
                 request.getSkuCode(),
                 request.getQuantity(),
-                request.getPrice()
+                BigDecimal.ZERO // Price will be set later from product validation
+        );
+    }
+    
+    public CartItem toCartItem(AddToCartRequest request, BigDecimal validatedPrice) {
+        if (request == null) {
+            return null;
+        }
+
+        return new CartItem(
+                request.getSkuCode(),
+                request.getQuantity(),
+                validatedPrice
         );
     }
 }

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import ma.ensaj.clientservice.dto.ClientRequestDTO;
 import ma.ensaj.clientservice.dto.ClientResponseDTO;
+import ma.ensaj.clientservice.dto.ClientValidationResponse;
 import ma.ensaj.clientservice.services.ClientService;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,5 +47,11 @@ public class ClientController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         clientService.deleteClient(id);
+    }
+    
+    // New endpoint for inter-service communication
+    @GetMapping("/validate/{clientId}")
+    public ClientValidationResponse validateClient(@PathVariable Long clientId) {
+        return clientService.validateClient(clientId);
     }
 }

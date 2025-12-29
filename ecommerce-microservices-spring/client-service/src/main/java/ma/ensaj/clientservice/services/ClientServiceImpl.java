@@ -3,6 +3,7 @@ package ma.ensaj.clientservice.services;
 import lombok.RequiredArgsConstructor;
 import ma.ensaj.clientservice.dto.ClientRequestDTO;
 import ma.ensaj.clientservice.dto.ClientResponseDTO;
+import ma.ensaj.clientservice.dto.ClientValidationResponse;
 import ma.ensaj.clientservice.entities.Client;
 import ma.ensaj.clientservice.mapper.ClientMapper;
 import ma.ensaj.clientservice.repositories.ClientRepository;
@@ -59,5 +60,26 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public void deleteClient(Long id) {
         clientRepository.deleteById(id);
+    }
+    
+    @Override
+    public ClientValidationResponse validateClient(Long clientId) {
+        Client client = clientRepository.findById(clientId).orElse(null);
+        
+        if (client == null) {
+            return ClientValidationResponse.builder()
+                    .clientId(clientId)
+                    .exists(false)
+                    .errorMessage("Client not found")
+                    .build();
+        }
+        
+        return ClientValidationResponse.builder()
+                .clientId(clientId)
+                .exists(true)
+                .firstName(client.getFirstName())
+                .lastName(client.getLastName())
+                .email(client.getEmail())
+                .build();
     }
 }

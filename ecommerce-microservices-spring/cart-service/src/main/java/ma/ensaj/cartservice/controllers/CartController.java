@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.ensaj.cartservice.dtos.AddToCartRequest;
 import ma.ensaj.cartservice.dtos.CartResponse;
+import ma.ensaj.cartservice.dtos.CartValidationResponse;
 import ma.ensaj.cartservice.dtos.UpdateCartItemRequest;
 import ma.ensaj.cartservice.services.CartService;
 import org.springframework.http.HttpStatus;
@@ -59,5 +60,23 @@ public class CartController {
         log.info("DELETE request to clear cart for user: {}", userId);
         cartService.clearCart(userId);
         return ResponseEntity.noContent().build();
+    }
+    
+    // New endpoints with validation
+    @PostMapping("/{userId}/items/validated")
+    public ResponseEntity<CartResponse> addItemToCartWithValidation(
+            @PathVariable Long userId,
+            @Valid @RequestBody AddToCartRequest request) {
+        log.info("POST request to add validated item to cart for user: {}", userId);
+        CartResponse cart = cartService.addItemToCartWithValidation(userId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(cart);
+    }
+    
+    // Endpoints for order-service integration
+    @GetMapping("/{userId}/validate")
+    public ResponseEntity<CartValidationResponse> getValidatedCart(@PathVariable Long userId) {
+        log.info("GET request to fetch validated cart for user: {}", userId);
+        CartValidationResponse cart = cartService.getValidatedCart(userId);
+        return ResponseEntity.ok(cart);
     }
 }

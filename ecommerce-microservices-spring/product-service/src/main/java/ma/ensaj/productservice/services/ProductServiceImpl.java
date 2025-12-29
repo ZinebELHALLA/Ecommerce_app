@@ -4,13 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.ensaj.productservice.dto.ProductRequestDTO;
 import ma.ensaj.productservice.dto.ProductResponseDTO;
+import ma.ensaj.productservice.dto.ProductValidationResponse;
 import ma.ensaj.productservice.entities.Category;
 import ma.ensaj.productservice.entities.Product;
 import ma.ensaj.productservice.repositories.CategoryRepository;
 import ma.ensaj.productservice.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +32,7 @@ public class ProductServiceImpl implements ProductService {
 name(   request.getName())
                 .description(request.getDescription())
                 .price(request.getPrice())
+                .stock(request.getStock())
                 .imageUrl(request.getImageUrl())
                 .sku(request.getSku())
                 .categoryId(category.getId())
@@ -53,6 +58,7 @@ name(   request.getName())
         existingProduct.setSku(request.getSku());
         existingProduct.setImageUrl(request.getImageUrl());
         existingProduct.setActive(request.isActive());
+        existingProduct.setStock(request.getStock());
         existingProduct.setCategoryId(request.getCategoryId());
 
         Product updatedProduct = productRepository.save(existingProduct);
@@ -89,6 +95,65 @@ name(   request.getName())
 
 
 
+    @Override
+    public List<ProductValidationResponse> validateProducts(List<String> skuCodes) {
+        List<ProductValidationResponse> responses = new ArrayList<>();
+        List<Product> existingProducts = productRepository.findBySkuIn(skuCodes);
+        
+        // Create map of existing SKUs to products for quick lookup
+        java.util.Map<String, Product> productMap = existingProducts.stream()
+                .collect(java.util.stream.Collectors.toMap(Product::getSku, p -> p));
+        
+        for (String skuCode : skuCodes) {
+            Product product = productMap.get(skuCode);
+            if (product != null && product.isActive()) {
+                responses.add(ProductValidationResponse.builder()
+                        .skuCode(skuCode)
+                        .exists(true)
+                        .productName(product.getName())
+                        .price(BigDecimal.valueOf(product.getPrice()))
+                        .build());
+            } else {
+                responses.add(ProductValidationResponse.builder()
+                        .skuCode(skuCode)
+                        .exists(false)
+                        .errorMessage(product == null ? "Product not found" : "Product is inactive")
+                        .build());
+            }
+        }
+        
+        return responses;
+    }
+    
+    @Override
+    public ProductValidationResponse validateProductBySku(String skuCode) {
+        Optional<Product> productOpt = productRepository.findBySku(skuCode);
+        
+        if (productOpt.isPresent()) {
+            Product product = productOpt.get();
+            if (product.isActive()) {
+                return ProductValidationResponse.builder()
+                        .skuCode(skuCode)
+                        .exists(true)
+                        .productName(product.getName())
+                        .price(BigDecimal.valueOf(product.getPrice()))
+                        .build();
+            } else {
+                return ProductValidationResponse.builder()
+                        .skuCode(skuCode)
+                        .exists(false)
+                        .errorMessage("Product is inactive")
+                        .build();
+            }
+        } else {
+            return ProductValidationResponse.builder()
+                    .skuCode(skuCode)
+                    .exists(false)
+                    .errorMessage("Product not found")
+                    .build();
+        }
+    }
+
     // Mapper entity -> DTO
     private ProductResponseDTO mapToResponse(Product product) {
         return ProductResponseDTO.builder()
@@ -96,6 +161,7 @@ name(   request.getName())
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())
+                .stock(product.getStock())
                 .sku(product.getSku())
                 .imageUrl(product.getImageUrl())
                 .active(product.isActive())
