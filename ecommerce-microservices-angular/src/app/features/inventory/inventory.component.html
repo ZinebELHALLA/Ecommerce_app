@@ -1,9 +1,54 @@
 <div class="container mx-auto px-6 py-8">
   <div class="flex justify-between items-center mb-8">
     <h2 class="page-title">Inventory Management</h2>
-    <button class="btn-secondary flex items-center gap-2" (click)="loadInventory()">
-      <i class="bi bi-arrow-clockwise" [class.animate-spin]="loading"></i> Refresh
-    </button>
+    <div class="flex gap-3">
+      <button class="btn-primary flex items-center gap-2" (click)="toggleAddStockForm()">
+        <i class="bi bi-plus-circle"></i> Add Stock
+      </button>
+      <button class="btn-secondary flex items-center gap-2" (click)="loadInventory()">
+        <i class="bi bi-arrow-clockwise" [class.animate-spin]="loading"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Add Stock Form -->
+  <div *ngIf="showAddStockForm" class="card-premium p-6 mb-8 animate-slide-down">
+    <h5 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+      <i class="bi bi-box-seam"></i> Add Stock to Product
+    </h5>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div class="form-floating-custom">
+        <input id="skuCode" type="text" [(ngModel)]="addStockForm.skuCode" placeholder="SKU Code" required>
+        <label for="skuCode">SKU Code</label>
+      </div>
+      
+      <div class="form-floating-custom">
+        <input id="quantity" type="number" min="1" [(ngModel)]="addStockForm.quantity" placeholder="Quantity" required>
+        <label for="quantity">Quantity to Add</label>
+      </div>
+      
+      <div class="flex items-end">
+        <button class="btn-primary w-full" (click)="addStock()" [disabled]="!addStockForm.skuCode || !addStockForm.quantity">
+          <i class="bi bi-plus-lg mr-2"></i> Add Stock
+        </button>
+      </div>
+    </div>
+    
+    <div class="flex justify-end">
+      <button class="text-gray-500 hover:text-gray-700 text-sm" (click)="toggleAddStockForm()">
+        Cancel
+      </button>
+    </div>
+    
+    <!-- Add Stock Messages -->
+    <div *ngIf="addStockMessage" class="mt-4 bg-green-50 text-green-700 p-3 rounded-xl border border-green-200 flex items-center gap-2">
+      <i class="bi bi-check-circle-fill"></i> {{ addStockMessage }}
+    </div>
+    
+    <div *ngIf="addStockError" class="mt-4 bg-red-50 text-red-700 p-3 rounded-xl border border-red-200 flex items-center gap-2">
+      <i class="bi bi-exclamation-triangle-fill"></i> {{ addStockError }}
+    </div>
   </div>
 
   <!-- Loading -->

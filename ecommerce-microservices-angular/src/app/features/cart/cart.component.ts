@@ -137,7 +137,7 @@ export class CartComponent implements OnInit {
         
         // Redirect after 2 seconds
         setTimeout(() => {
-            this.router.navigate(['/products']);
+            this.router.navigate(['/catalog']);
         }, 2500);
       },
       error: (err) => {

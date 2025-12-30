@@ -34,8 +34,10 @@ public class OrderMapper {
         OrderLineResponse response = new OrderLineResponse();
         response.setId(entity.getId());
         response.setSkuCode(entity.getSkuCode());
+        response.setProductName(entity.getSkuCode()); // Use SKU as product name for now
         response.setPrice(entity.getPrice());
         response.setQuantity(entity.getQuantity());
+        response.setTotalPrice(entity.getPrice().multiply(java.math.BigDecimal.valueOf(entity.getQuantity())));
         return response;
     }
 
@@ -43,11 +45,21 @@ public class OrderMapper {
         OrderResponse response = new OrderResponse();
         response.setId(entity.getId());
         response.setOrderNumber(entity.getOrderNumber());
-        response.setOrderLines(
-                entity.getOrderLines().stream()
-                        .map(this::toOrderLineResponse)
-                        .collect(Collectors.toList())
-        );
+        response.setUserId(entity.getClientId());
+        response.setStatus(entity.getStatus() != null ? entity.getStatus().toString() : "PENDING");
+        response.setTotalAmount(entity.getTotalAmount());
+        response.setDeliveryAddress(entity.getDeliveryAddress());
+        response.setPaymentMethod(entity.getPaymentMethod());
+        response.setOrderDate(entity.getCreatedAt());
+        if (entity.getOrderLines() != null && !entity.getOrderLines().isEmpty()) {
+            response.setItems(
+                    entity.getOrderLines().stream()
+                            .map(this::toOrderLineResponse)
+                            .collect(Collectors.toList())
+            );
+        } else {
+            response.setItems(new java.util.ArrayList<>());
+        }
         return response;
     }
 }

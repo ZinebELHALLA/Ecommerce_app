@@ -15,8 +15,13 @@
         <!-- Authenticated Menu Items -->
         <ng-container *ngIf="authService.isAuthenticated()">
           <li>
+            <a routerLink="/catalog" routerLinkActive="text-primary font-semibold" class="text-gray-600 hover:text-primary transition-colors flex items-center gap-2 decoration-0">
+              <i class="bi bi-grid"></i> Catalog
+            </a>
+          </li>
+          <li *ngIf="authService.isManager()">
             <a routerLink="/products" routerLinkActive="text-primary font-semibold" class="text-gray-600 hover:text-primary transition-colors flex items-center gap-2 decoration-0">
-              <i class="bi bi-grid"></i> Products
+              <i class="bi bi-list-ul"></i> Products
             </a>
           </li>
           <li *ngIf="authService.isManager()">
@@ -24,15 +29,19 @@
               <i class="bi bi-gear"></i> Manage
             </a>
           </li>
-
-                    <li *ngIf="authService.isManager()">
+          <li *ngIf="authService.isManager()">
             <a routerLink="/inventory" routerLinkActive="text-primary font-semibold" class="text-gray-600 hover:text-primary transition-colors flex items-center gap-2 decoration-0">
-              <i class="bi bi-gear"></i> Inventory
+              <i class="bi bi-box-seam"></i> Inventory
             </a>
           </li>
           <li *ngIf="!authService.isManager()">
             <a routerLink="/cart" routerLinkActive="text-primary font-semibold" class="relative text-gray-600 hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10 decoration-0">
-              <i class="bi bi-cart3 text-xl"></i> Shopping
+              <i class="bi bi-cart3 text-xl"></i> Cart
+            </a>
+          </li>
+          <li *ngIf="!authService.isManager()">
+            <a routerLink="/orders" routerLinkActive="text-primary font-semibold" class="text-gray-600 hover:text-primary transition-colors flex items-center gap-2 decoration-0">
+              <i class="bi bi-bag"></i> Orders
             </a>
           </li>
           <li>

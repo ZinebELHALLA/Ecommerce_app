@@ -171,4 +171,13 @@ public class OrderServiceImpl implements OrderService{
             throw new RuntimeException("Checkout failed due to unexpected error: " + e.getMessage(), e);
         }
     }
+    
+    @Override
+    public List<OrderResponse> getAllOrders() {
+        log.info("Retrieving all orders");
+        List<Order> orders = orderRepository.findAll();
+        return orders.stream()
+                .map(mapper::toOrderResponse)
+                .collect(Collectors.toList());
+    }
 }

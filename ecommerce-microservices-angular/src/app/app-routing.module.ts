@@ -1,7 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ProductListComponent } from './features/products/product-list/product-list.component';
+import { CatalogComponent } from './features/catalog/catalog.component';
 import { CartComponent } from './features/cart/cart.component';
+import { OrdersComponent } from './features/orders/orders.component';
 import { InventoryComponent } from './features/inventory/inventory.component';
 import { ManageProductsComponent } from './features/products/manage-products/manage-products.component';
 import { ProductDetailComponent } from './features/products/product-detail/product-detail.component';
@@ -13,6 +15,11 @@ import { RoleGuard } from './core/guards/role.guard';
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { 
+    path: 'catalog', 
+    component: CatalogComponent,
+    canActivate: [AuthGuard]
+  },
   { 
     path: 'products', 
     component: ProductListComponent,
@@ -29,6 +36,11 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   { 
+    path: 'orders', 
+    component: OrdersComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
     path: 'manage-products', 
     component: ManageProductsComponent,
     canActivate: [AuthGuard, RoleGuard],
@@ -40,8 +52,8 @@ const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard], // Manager only
     data: { role: 'MANAGER' }
   },
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: '**', redirectTo: '/login' }
+  { path: '', redirectTo: '/catalog', pathMatch: 'full' },
+  { path: '**', redirectTo: '/catalog' }
 ];
 
 @NgModule({

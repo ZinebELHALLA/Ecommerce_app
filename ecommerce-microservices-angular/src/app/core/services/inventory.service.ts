@@ -21,6 +21,19 @@ export interface BatchInventoryRequest {
   requiredQuantity: number;
 }
 
+export interface AddStockRequest {
+  skuCode: string;
+  quantity: number;
+}
+
+export interface InventoryItem {
+  id?: string;
+  skuCode: string;
+  quantity: number;
+  productName?: string;
+  price?: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -48,5 +61,17 @@ export class InventoryService {
           requiredQuantity: 1
       }));
       return this.http.post<void>(`${this.inventoryUrl}/deduct`, requests);
+  }
+
+  addStock(request: AddStockRequest): Observable<InventoryResponse> {
+    return this.http.post<InventoryResponse>(`${this.inventoryUrl}`, request);
+  }
+
+  getAllInventory(): Observable<InventoryItem[]> {
+    return this.http.get<InventoryItem[]>(this.inventoryUrl);
+  }
+
+  updateStock(skuCode: string, quantity: number): Observable<InventoryResponse> {
+    return this.http.put<InventoryResponse>(`${this.inventoryUrl}/${skuCode}`, { quantity });
   }
 }

@@ -6,6 +6,8 @@ import ma.ensaj.orderservice.dtos.CheckoutRequest;
 import ma.ensaj.orderservice.dtos.OrderRequest;
 import ma.ensaj.orderservice.dtos.OrderResponse;
 import ma.ensaj.orderservice.services.OrderService;
+
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +30,11 @@ public class OrderController {
     @GetMapping("/{id}")
     public OrderResponse getOrder(@PathVariable Long id) {
         return orderService.getOrderById(id);
+    }
+    
+    @GetMapping
+    public List<OrderResponse> getAllOrders() {
+        return orderService.getAllOrders();
     }
     
     // New checkout endpoint with complete validation workflow

@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
+import { InventoryService } from './inventory.service';
 
 export interface CartItem {
   id: string; // Frontend ID - always set from skuCode
@@ -46,7 +47,8 @@ export class CartService {
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private inventoryService: InventoryService
   ) {
     // Get user ID from authenticated user instead of random ID
     this.updateUserId();
@@ -84,6 +86,23 @@ export class CartService {
   }
 
   addToCart(item: CartItem): Observable<CartResponse> {
+    // First check stock before adding to cart
+    return this.inventoryService.checkStock(item.skuCode).pipe(
+      switchMap(stockResponse => {
+        if (!stockResponse || stockResponse.quantity < item.quantity) {
+          throw new Error('Insufficient stock available');
+        }
+        
+        // If stock is available, proceed with adding to cart
+        return this.http.post<BackendCartResponse>(`${this.cartServiceUrl}/${this.userId}/items`, item).pipe(
+          map(response => this.mapBackendResponse(response))
+        );
+      })
+    );
+  }
+  
+  addToCartWithoutValidation(item: CartItem): Observable<CartResponse> {
+    // Direct add without stock validation (for internal use)
     return this.http.post<BackendCartResponse>(`${this.cartServiceUrl}/${this.userId}/items`, item).pipe(
       map(response => this.mapBackendResponse(response))
     );
