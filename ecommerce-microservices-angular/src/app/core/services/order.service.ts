@@ -6,11 +6,18 @@ import { CartItem } from './cart.service';
 
 export interface OrderRequest {
     userId: number;
-    orderLineItemsDtoList: CartItem[]; // Assuming backend expects similar structure or mapped
+    orderLineItemsDtoList: CartItem[]; // Legacy support if needed
 }
 
 export interface OrderResponse {
     orderNumber: string;
+    status?: string;
+}
+
+export interface CheckoutRequest {
+    userId: number;
+    deliveryAddress: string;
+    paymentMethod: string;
 }
 
 @Injectable({
@@ -23,5 +30,9 @@ export class OrderService {
 
   placeOrder(orderRequest: OrderRequest): Observable<OrderResponse> {
     return this.http.post<OrderResponse>(this.orderServiceUrl, orderRequest);
+  }
+
+  checkout(checkoutRequest: CheckoutRequest): Observable<OrderResponse> {
+    return this.http.post<OrderResponse>(`${this.orderServiceUrl}/checkout`, checkoutRequest);
   }
 }

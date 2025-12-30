@@ -6,13 +6,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#7da0fa', // Soft Purple-Blue
-        'primary-dark': '#5b7bbd',
-        secondary: '#f3a4b5', // Pastel Pink
+        primary: '#FF6584', // Cute Vibrant Pink
+        'primary-dark': '#E05470',
+        secondary: '#43D9C0', // Mint
+        accent: '#FFD93D', // Yellow
         surface: '#ffffff',
-        background: '#f8f9fa',
-        text: '#333333',
-        muted: '#6c757d'
+        background: '#FFF5F7', // Very Subtle Pink background
+        text: '#4A4A4A', // Softer Black
+        muted: '#8D99AE'
       },
       fontFamily: {
         sans: ['Quicksand', 'sans-serif'],
@@ -20,6 +21,10 @@ module.exports = {
       borderRadius: {
         'xl': '1rem',
         '2xl': '1.5rem',
+        '3xl': '2rem', // More rounded
+      },
+      boxShadow: {
+        'cute': '0 10px 25px -5px rgba(255, 101, 132, 0.15), 0 8px 10px -6px rgba(255, 101, 132, 0.1)',
       }
     },
   },

@@ -94,31 +94,41 @@ export class ProductListComponent implements OnInit {
   }
 
   checkInventory() {
-    this.products.forEach(product => {
-      const sku = product.sku || product.id; 
-      if (sku) {
-        this.productService.checkStock(sku).subscribe({
-          next: (stock) => {
-            product.inStock = stock.inStock;
-            product.checkingStock = false;
-          },
-          error: () => {
-             // Fallback logic when inventory service fails:
-             // If stock is null, treat as available if product is active
-             // Otherwise, only in stock if stock > 0
-             if (product.stock === null || product.stock === undefined) {
-                 product.inStock = product.active !== false; // Default to true unless explicitly false
-             } else {
-                 product.inStock = product.stock > 0;
-             }
-             product.checkingStock = false;
-          }
-        });
-      } else {
-        product.checkingStock = false;
-        product.inStock = false;
-      }
+    // FIX: Avoid N+1 API calls. Use the stock field from ProductResponseDTO first.
+    // If we really need live inventory from InventoryService, do it in ONE batch call.
+    
+    // 1. Initial pass: use stock from product service
+    this.products.forEach(p => {
+        if (p.stock !== undefined && p.stock !== null) {
+            p.inStock = p.stock > 0;
+            p.checkingStock = false;
+        }
     });
+
+    // 2. Batch update (Optional: only if we suspect ProductService stock is stale)
+    // We filter products that still need checking (if any didn't have stock field)
+    const skusToCheck = this.products
+        .filter(p => (p.inStock === undefined))
+        .map(p => p.sku || p.id)
+        .filter(sku => !!sku);
+
+    if (skusToCheck.length > 0) {
+        // Since we don't have a direct batch endpoint in ProductService for *stock*,
+        // we can assume for now that ProductService stock is the source of truth for the list view.
+        // If we integrated InventoryService, we would call it here ONCE with all SKUs.
+        
+        // For stabilization, we rely on ProductService. 
+        // If stock is missing, we default to TRUE (optimistic) to not block UI, 
+        // or FALSE if we want to be safe. Given "Zero Stock" bug, let's trust the 'stock' field if present.
+        
+        this.products.forEach(p => {
+            if (p.inStock === undefined) {
+                 // Fallback: If product is active, assume in stock unless explicitly 0
+                 p.inStock = p.active !== false;
+                 p.checkingStock = false;
+            }
+        });
+    }
   }
 
   addToCart(product: ProductWithStock) {

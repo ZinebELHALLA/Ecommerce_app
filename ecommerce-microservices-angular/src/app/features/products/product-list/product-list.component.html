@@ -67,11 +67,11 @@
               
               <!-- Badge -->
               <div class="absolute top-3 right-3">
-                  <span class="px-3 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-md"
+                  <span class="px-3 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-md transition-all"
                         [ngClass]="{
-                            'bg-green-500/90 text-white': product.inStock, 
+                            'bg-secondary/90 text-white': product.inStock, 
                             'bg-gray-500/90 text-white': product.checkingStock, 
-                            'bg-red-500/90 text-white': !product.inStock && !product.checkingStock
+                            'bg-red-400/90 text-white': !product.inStock && !product.checkingStock
                         }">
                       <ng-container *ngIf="product.checkingStock">Checking...</ng-container>
                       <ng-container *ngIf="!product.checkingStock && product.inStock">

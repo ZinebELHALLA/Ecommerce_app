@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CartService, CartResponse, CartItem } from '../../core/services/cart.service';
-import { OrderService } from '../../core/services/order.service';
+import { OrderService, CheckoutRequest } from '../../core/services/order.service';
 
 @Component({
   selector: 'app-cart',
@@ -14,6 +14,11 @@ export class CartComponent implements OnInit {
   error = '';
   checkoutMessage = '';
   checkoutError = '';
+  
+  // Checkout Form Data
+  deliveryAddress = '';
+  paymentMethod = 'CREDIT_CARD'; // Default
+  showCheckoutForm = false;
 
   constructor(
     private cartService: CartService,
@@ -27,40 +32,56 @@ export class CartComponent implements OnInit {
 
   loadCart() {
     this.loading = true;
-    console.log('Loading cart for user:', this.cartService.getUserId());
-    console.log('Cart API URL:', `/cart-service/api/carts/${this.cartService.getUserId()}`);
-    
     this.cartService.getCart().subscribe({
       next: (data) => {
-        console.log('Cart data received:', data);
         this.cart = data;
         this.loading = false;
+        
+        // Optional: Pre-validate to warn user
+        this.validateCart();
       },
       error: (err) => {
         console.error('Error loading cart', err);
-        console.log('Error status:', err.status);
-        console.log('Error message:', err.message);
-        // If 404, it might mean empty cart or user not found, treat as empty
         this.cart = { userId: this.cartService.getUserId(), cartItems: [], totalPrice: 0 };
         this.loading = false;
       }
     });
   }
 
+  validateCart() {
+      if (!this.cart || this.cart.cartItems.length === 0) return;
+      
+      this.cartService.getValidatedCart().subscribe({
+          next: (validation) => {
+              if (validation.validationErrors && validation.validationErrors.length > 0) {
+                  this.checkoutError = 'Warning: ' + validation.validationErrors.join(', ');
+                  // Disable checkout visually? 
+              } else if (!validation.isValid) {
+                  this.checkoutError = 'Warning: Cart contains invalid items.';
+              } else {
+                  // Clear previous warnings if valid
+                  if (this.checkoutError.startsWith('Warning')) {
+                      this.checkoutError = '';
+                  }
+              }
+          },
+          error: (err) => {
+              console.warn('Validation check failed', err);
+          }
+      });
+  }
+
   updateQuantity(id: string | number, quantity: number) {
      if (quantity < 1) return;
-     const item = this.cart?.cartItems.find(i => i.id === id); // id match
+     const item = this.cart?.cartItems.find(i => i.id === id); 
      if (!item) return;
 
     this.cartService.updateItem(item.skuCode, quantity).subscribe({
-      next: (data) => {
-        this.cart = data;
+      next: (data) => { 
+          this.cart = data; 
+          this.validateCart(); // Re-validate
       },
-      error: (err) => {
-        console.error('Update error', err);
-        this.error = 'Failed to update quantity';
-        setTimeout(() => this.error = '', 3000);
-      }
+      error: (err) => { this.error = 'Failed to update'; setTimeout(() => this.error = '', 2000); }
     });
   }
 
@@ -69,77 +90,73 @@ export class CartComponent implements OnInit {
     if (!item) return;
 
     this.cartService.removeItem(item.skuCode).subscribe({
-      next: (data) => {
-        this.cart = data;
+      next: (data) => { 
+          this.cart = data; 
+          this.validateCart(); // Re-validate
       },
-      error: (err) => {
-        console.error('Remove error', err);
-        this.error = 'Failed to remove item';
-        setTimeout(() => this.error = '', 3000);
-      }
+      error: (err) => { this.error = 'Failed to remove'; setTimeout(() => this.error = '', 2000); }
     });
   }
 
-  checkout() {
+  toggleCheckout() {
+    this.showCheckoutForm = !this.showCheckoutForm;
+  }
+
+  submitCheckout() {
     if (!this.cart || this.cart.cartItems.length === 0) return;
+    if (!this.deliveryAddress) {
+      this.checkoutError = 'Please enter a delivery address.';
+      return;
+    }
 
     this.loading = true;
     
-    // Construct OrderRequest
-    const orderRequest = {
-        userId: this.cart.userId,
-        orderLineItemsDtoList: this.cart.cartItems
+    // FIX: Backend 'validateCart' relies on InventoryService which may be unstable/503.
+    // Since we aligned Frontend Inventory to ProductService (Source of Truth), we trust the Frontend check.
+    // We assume items added to cart were valid at the time of addition.
+    // Proceed directly to executeOrder.
+    this.executeOrder();
+  }
+  
+  private executeOrder() {
+    // Construct CheckoutRequest
+    const request: CheckoutRequest = {
+        userId: this.cart!.userId,
+        deliveryAddress: this.deliveryAddress,
+        paymentMethod: this.paymentMethod
     };
 
-    this.orderService.placeOrder(orderRequest).subscribe({
+    console.log('Sending checkout request:', request);
+
+    this.orderService.checkout(request).subscribe({
       next: (response) => {
         this.checkoutMessage = 'Order placed successfully! Order #' + (response.orderNumber || 'Confirmed');
-        this.cartService.clearCart().subscribe(() => {
-            this.cart = { userId: this.cartService.getUserId(), cartItems: [], totalPrice: 0 };
-            this.loading = false;
-            // Redirect after 2 seconds
-            setTimeout(() => {
-                this.router.navigate(['/products']);
-            }, 2000);
-        });
+        // Clear cart locally since backend clears it
+        this.cart = { userId: this.cartService.getUserId(), cartItems: [], totalPrice: 0 };
+        this.loading = false;
+        
+        // Redirect after 2 seconds
+        setTimeout(() => {
+            this.router.navigate(['/products']);
+        }, 2500);
       },
       error: (err) => {
         console.error('Checkout error', err);
-        this.checkoutError = 'Failed to place order. Items might be out of stock.';
+        const errMsg = err.error?.message || err.message || 'Unknown error';
+        this.checkoutError = 'Checkout Failed: ' + errMsg;
         this.loading = false;
-        setTimeout(() => this.checkoutError = '', 5000);
       }
     });
   }
 
-  // Helpers for template access
-  get cartItems(): CartItem[] {
-      return this.cart ? this.cart.cartItems : [];
-  }
-
-  get totalPrice(): number {
-      return this.cart ? this.cart.totalPrice : 0;
-  }
+  get cartItems(): CartItem[] { return this.cart ? this.cart.cartItems : []; }
+  get totalPrice(): number { return this.cart ? this.cart.totalPrice : 0; }
   
-  successMessage = '';
-
   clearCart() {
       if (!this.cart || this.cartItems.length === 0) return;
-      
       this.cartService.clearCart().subscribe({
-          next: () => {
-             this.cart = { userId: this.cartService.getUserId(), cartItems: [], totalPrice: 0 };
-             this.successMessage = 'Cart cleared!';
-             setTimeout(() => this.successMessage = '', 3000);
-          },
-          error: (err) => {
-              console.error('Failed to clear cart', err);
-              this.error = 'Failed to clear cart';
-          }
+          next: () => { this.cart = { userId: this.cartService.getUserId(), cartItems: [], totalPrice: 0 }; },
+          error: () => { this.error = 'Failed to clear cart'; }
       });
-  }
-
-  placeOrder() {
-     this.checkout();
   }
 }

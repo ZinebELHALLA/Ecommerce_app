@@ -29,6 +29,14 @@ interface BackendCartResponse {
   totalPrice: number;
 }
 
+export interface CartValidationResponse {
+    userId: number;
+    items: any[];
+    totalAmount: number;
+    isValid: boolean;
+    validationErrors: string[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -69,6 +77,10 @@ export class CartService {
         totalPrice: response.totalPrice
       }))
     );
+  }
+
+  getValidatedCart(): Observable<CartValidationResponse> {
+    return this.http.get<CartValidationResponse>(`${this.cartServiceUrl}/${this.userId}/validate`);
   }
 
   addToCart(item: CartItem): Observable<CartResponse> {

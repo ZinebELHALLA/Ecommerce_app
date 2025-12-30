@@ -29,6 +29,9 @@ export interface RegisterRequest {
 @Injectable({
   providedIn: 'root'
 })
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -39,30 +42,45 @@ export class AuthService {
   ) {
     this.loadUserFromStorage();
   }
+
   private loadUserFromStorage(): void {
     const token = this.getToken();
-    if (token) {
-      const user = this.decodeToken(token);
-      this.currentUserSubject.next(user);
+    const storedUser = localStorage.getItem('current_user');
+    
+    if (token && storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        this.currentUserSubject.next(user);
+      } catch (e) {
+        console.error('Failed to parse user from storage', e);
+        this.logout();
+      }
+    } else if (token) {
+       // Fallback if token exists but no user (e.g. old session), try decode or force login
+       this.logout(); 
     }
   }
+
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(
       `${environment.apiUrl}/client-service/api/auth/login`,
       { username: credentials.username, password: credentials.password }
     ).pipe(
       tap(response => {
-        this.saveToken(response.token);
+        // 1. Construct User object from explicit response fields
         const user: User = {
           id: response.userId,
           username: response.username,
-          email: response.username,
+          email: response.username, // or from response if available
           role: response.role as 'MANAGER' | 'USER'
         };
-        this.currentUserSubject.next(user);
+
+        // 2. Save complete session
+        this.saveSession(response.token, user);
       })
     );
   }
+
   register(data: RegisterRequest): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(
       `${environment.apiUrl}/client-service/api/auth/register`,
@@ -76,49 +94,38 @@ export class AuthService {
       }
     );
   }
+
   logout(): void {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('current_user');
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
   }
-  saveToken(token: string): void {
+
+  private saveSession(token: string, user: User): void {
     localStorage.setItem('auth_token', token);
-    const user = this.decodeToken(token);
     localStorage.setItem('current_user', JSON.stringify(user));
     this.currentUserSubject.next(user);
   }
+
   getToken(): string | null {
     return localStorage.getItem('auth_token');
   }
+
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
+
   isAuthenticated(): boolean {
     return this.getToken() !== null;
   }
+
   isManager(): boolean {
     const user = this.getCurrentUser();
     return user?.role === 'MANAGER';
   }
+
   getUserRole(): 'MANAGER' | 'USER' | null {
     return this.getCurrentUser()?.role || null;
-  }
-  private decodeToken(token: string): User {
-    try {
-      const parts = token.split('.');
-      if (parts.length !== 3) throw new Error('Invalid token');
-      
-      const payload = JSON.parse(atob(parts[1]));
-      return {
-        id: parseInt(payload.sub),
-        username: payload.username,
-        email: payload.username,
-        role: payload.role
-      };
-    } catch (error) {
-      console.error('Error decoding token:', error);
-      return { id: 0, username: 'Unknown', email: '', role: 'USER' };
-    }
   }
 }

@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ProductListComponent } from './features/products/product-list/product-list.component';
 import { CartComponent } from './features/cart/cart.component';
+import { InventoryComponent } from './features/inventory/inventory.component';
 import { ManageProductsComponent } from './features/products/manage-products/manage-products.component';
 import { ProductDetailComponent } from './features/products/product-detail/product-detail.component';
 import { LoginComponent } from './features/auth/login/login.component';
@@ -31,6 +32,12 @@ const routes: Routes = [
     path: 'manage-products', 
     component: ManageProductsComponent,
     canActivate: [AuthGuard, RoleGuard],
+    data: { role: 'MANAGER' }
+  },
+  { 
+    path: 'inventory', 
+    component: InventoryComponent,
+    canActivate: [AuthGuard, RoleGuard], // Manager only
     data: { role: 'MANAGER' }
   },
   { path: '', redirectTo: '/login', pathMatch: 'full' },

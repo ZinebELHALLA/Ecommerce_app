@@ -2,6 +2,8 @@ package ma.ensaj.productservice.services;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ma.ensaj.productservice.clients.InventoryClient;
+import ma.ensaj.productservice.dto.InventoryRequest;
 import ma.ensaj.productservice.dto.ProductRequestDTO;
 import ma.ensaj.productservice.dto.ProductResponseDTO;
 import ma.ensaj.productservice.dto.ProductValidationResponse;
@@ -10,6 +12,7 @@ import ma.ensaj.productservice.entities.Product;
 import ma.ensaj.productservice.repositories.CategoryRepository;
 import ma.ensaj.productservice.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -23,8 +26,10 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final InventoryClient inventoryClient;
 
     @Override
+    @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO request) {
         // verfier ctagorie
         Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new RuntimeException("Category not found"));
@@ -40,7 +45,21 @@ name(   request.getName())
         .build();
 
         Product savedProduct = productRepository.save(product);
-        log.info("Product created: {}", savedProduct.getName(),savedProduct.getId());
+        log.info("Product created: {}, id: {}", savedProduct.getName(), savedProduct.getId());
+        
+        // Create Inventory Record
+        try {
+            InventoryRequest inventoryRequest = InventoryRequest.builder()
+                    .skuCode(savedProduct.getSku())
+                    .quantity(savedProduct.getStock())
+                    .build();
+            inventoryClient.addProduct(inventoryRequest);
+            log.info("Inventory created for SKU: {}", savedProduct.getSku());
+        } catch (Exception e) {
+            log.error("Failed to create inventory for SKU: {}", savedProduct.getSku(), e);
+            // Optional: throw exception to rollback product creation if consistency is strictly required
+             throw new RuntimeException("Failed to create inventory: " + e.getMessage()); 
+        }
 
         // return response dto
 

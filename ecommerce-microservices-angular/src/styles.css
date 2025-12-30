@@ -1,50 +1,82 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Global Styles */
+/* Custom Global Styles - "Cute & Modern" */
 body {
-    background-color: #f8f9fa;
+    background-color: #FFF5F7; /* Soft Pink Tint */
     font-family: 'Quicksand', sans-serif;
-    color: #333;
+    color: #4A4A4A;
 }
 
-/* Material-like inputs using Tailwind */
+/* Material-like inputs with Cute Twist */
 .form-floating-custom {
-    @apply relative border border-gray-300 rounded-xl px-4 py-3 bg-white focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all duration-300;
+    @apply relative border-2 border-transparent bg-white rounded-2xl px-5 py-3 
+           focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 
+           transition-all duration-300 shadow-sm hover:shadow-md;
 }
 
 .form-floating-custom input,
 .form-floating-custom select,
 .form-floating-custom textarea {
-    @apply w-full bg-transparent border-none outline-none text-gray-800 placeholder-transparent;
+    @apply w-full bg-transparent border-none outline-none text-gray-700 placeholder-transparent font-medium;
 }
 
 .form-floating-custom label {
-    @apply absolute left-4 top-3 text-gray-500 text-sm transition-all duration-300 pointer-events-none;
+    @apply absolute left-5 top-3 text-gray-400 text-sm transition-all duration-300 pointer-events-none font-semibold;
 }
 
+/* Floating Label Animation */
 .form-floating-custom input:focus ~ label,
 .form-floating-custom input:not(:placeholder-shown) ~ label,
 .form-floating-custom select:focus ~ label,
 .form-floating-custom select:not([value=""]) ~ label,
 .form-floating-custom textarea:focus ~ label,
 .form-floating-custom textarea:not(:placeholder-shown) ~ label {
-    @apply -top-2 left-3 bg-white px-1 text-xs text-primary font-semibold;
+    @apply -top-3 left-4 bg-white px-2 text-xs text-primary font-bold rounded-full shadow-sm;
 }
 
-/* Button Styles */
+/* Button Styles - Pill Shaped */
 .btn-primary {
-    @apply bg-primary text-white border-0 py-2 px-6 rounded-full shadow-md hover:bg-primary-dark transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg font-medium;
+    @apply bg-primary text-white border-0 py-3 px-8 rounded-full shadow-cute 
+           hover:bg-primary-dark hover:scale-105 active:scale-95 
+           transition-all duration-300 font-bold tracking-wide uppercase text-sm;
 }
 
 .btn-secondary {
-    @apply bg-secondary text-white border-0 py-2 px-6 rounded-full shadow-md hover:brightness-110 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg font-medium;
+    @apply bg-white text-primary border-2 border-primary py-2 px-6 rounded-full shadow-sm 
+           hover:bg-primary hover:text-white hover:scale-105 
+           transition-all duration-300 font-bold;
 }
 
-/* Card Styles */
+.btn-icon {
+    @apply w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-90;
+}
+
+/* Card Styles - Soft & Rounded */
 .card-premium {
-    @apply bg-white rounded-2xl border-0 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden;
+    @apply bg-white rounded-3xl border border-white shadow-cute 
+           hover:shadow-2xl hover:-translate-y-2 
+           transition-all duration-500 overflow-hidden relative;
+}
+
+/* Page Headers */
+.page-title {
+    @apply text-3xl font-bold text-gray-800 mb-2 relative inline-block;
+}
+.page-title::after {
+    @apply content-[''] absolute -bottom-1 left-0 w-1/2 h-1 bg-primary rounded-full;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    @apply bg-primary/30 rounded-full hover:bg-primary/50;
 }
